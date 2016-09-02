@@ -1,14 +1,16 @@
-variable "access_key" { 
+/* will prompt after checking TF_VAR_access_key environment variable */
+variable "access_key" {
   description = "AWS access key"
 }
 
+/* will prompt after checking TF_VAR_secret_key environment variable */
 variable "secret_key" { 
-  description = "AWS secert access key"
+  description = "AWS secret access key"
 }
 
 variable "region"     { 
   description = "AWS region"
-  default     = "us-west-1" 
+  default     = "eu-west-1"
 }
 
 variable "vpc_cidr" {
@@ -26,11 +28,13 @@ variable "private_subnet_cidr" {
   default     = "10.128.1.0/24"
 }
 
-/* Ubuntu 14.04 amis by region */
+/* Ubuntu 14.04 amis by region
+   type can be inferred by the default but my linter likes it set explicitly */
 variable "amis" {
+  type = "map"
   description = "Base AMI to launch the instances with"
   default = {
-    us-west-1 = "ami-049d8641" 
+    eu-west-1 = "ami-a7412ad4"
     us-east-1 = "ami-a6b8e7ce"
   }
 }
