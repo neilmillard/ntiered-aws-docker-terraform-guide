@@ -1,4 +1,6 @@
-/* NAT/VPN server */
+/* NAT/VPN server
+installs docker and runs the gosuri/openvpn_ovpn_genconfig container
+*/
 resource "aws_instance" "nat" {
   ami = "${lookup(var.amis, var.region)}"
   instance_type = "t2.micro"
@@ -11,7 +13,8 @@ resource "aws_instance" "nat" {
   }
   connection {
     user = "ubuntu"
-    key_file = "ssh/insecure-deployer"
+    private_key = "${file(\"ssh/insecure-deployer\")}"
+    /* key_file = "ssh/insecure-deployer" */
   }
   provisioner "remote-exec" {
     inline = [
@@ -21,8 +24,11 @@ resource "aws_instance" "nat" {
       "curl -sSL https://get.docker.com/ubuntu/ | sudo sh",
       /* Initialize open vpn data container */
       "sudo mkdir -p /etc/openvpn",
+      /* https://hub.docker.com/r/kylemanna/openvpn/ */
+      /* Generate OpenVPN server config
+      might want to replace this docker with kylemanna/openvpn
+      */
       "sudo docker run --name ovpn-data -v /etc/openvpn busybox",
-      /* Generate OpenVPN server config */
       "sudo docker run --volumes-from ovpn-data --rm gosuri/openvpn ovpn_genconfig -p ${var.vpc_cidr} -u udp://${aws_instance.nat.public_ip}"
     ]
   }
